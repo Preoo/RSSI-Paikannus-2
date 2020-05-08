@@ -1,5 +1,6 @@
 import pandas as pd
 
+#parse_dates will parse columns values into datetime objects.
 df = pd.read_csv('mittausdata.csv', sep=';', parse_dates=['timestamp'])
 
 # drop columns
@@ -10,7 +11,6 @@ df = df[df.channel == 18]
 df = df.drop(['channel'], axis=1)
 
 # convert sensorid and neigthbors values to node id by substracting 0x8100
-
 def sensorid_to_int(id_hex:str) -> int:
     return int(id_hex, base=16) - int('0x8100', base=16)
 
