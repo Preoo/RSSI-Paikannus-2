@@ -1,0 +1,60 @@
+\documentclass[finnish,labra,latin1,nonumbib,palatino]{LabraKokkolaC}
+\usepackage{listings}
+
+\makeatletter
+\iflabra@pdf
+  \usepackage[pdftex,bookmarksopen,bookmarksnumbered]{hyperref}
+	%\hypersetup{colorlinks,citecolor=blue}
+\else
+	\RequirePackage[hypertex]{hyperref}
+\fi
+\makeatother
+
+
+\title{Paikannus sensoriverkoissa 2\\\textsl{RSSI-pohjainen paikannus}}
+% Kirjoita tähän oma nimesi
+\setauthor{Malli}{Oppilas}
+
+
+\begin{document}
+	
+\mainmatter
+
+\chapter{Johdanto}
+Kirjoita tähän raportin johdanto. Käsittele lyhyesti paikannusta sensoriverkoissa, esim. mitä eri menetelmiä etäisyysmittaukseen ja sijainnin laskentaan on käytössä. Kerro myös tässä työssä käytetyistä menetelmistä sekä keskeisimmistä tuloksista lyhyesti. Muista käyttää asianmukaisia lähdeviittauksia (esim. \cite{meikalainen}).
+
+Johdannon ja yhteenvedon tulisi muodostaa selkeä ja yhtenäinen kokonaisuus, jonka lukemalla lukija saa hyvän kokonaiskuvan käsiteltävästä aiheesta lukematta koko raporttia. Raportin muissa luvuissa aihetta ja tuloksia käsitellään ja analysoidaan yksityiskohtaisemmin.
+
+
+\chapter{Työn kuvaus}
+Käsittele tässä luvussa tarkemmin laboratoriotyön suorittamista. Kerro esimerkiksi työssä käytetystä laitteistosta (CiNet WSN), tutkimusympäristöstä, mittausdatasta, sijainnin laskennasta sekä paikannusvirheen analysoinnista.
+Lisää tarvittaessa alalukuja. Halutessasi voit lisätä myös liitteitä (esim. liite \ref{liite1}).
+
+
+\chapter{Tulokset ja pohdinta}
+Esitä tässä luvussa harjoitustyöohjeen tehtävässä 3: \emph{Paikannusvirheen analysointi} saamasi tulokset (kuvaajat ja taulukot). Analysoi tuloksia ja vastaa tehtävässä esitettyihin kysymyksiin. Pohdi lisäksi muita mahdollisia tekijöitä, joilla voi olla vaikutusta saamaasi tuloksiin. Lisää tarvittaessa alalukuja.
+
+\begin{figure} [htbp]
+  \begin{center}
+    \leavevmode
+    \includegraphics[scale=0.15]{Kuva1.png}
+    \caption{Tässä on kuva.}
+    \label{fig:Kuva1}
+  \end{center}
+\end{figure}
+
+
+\chapter{Yhteenveto}
+Kirjoita tähän lyhyt yhteenveto ja johtopäätökset.
+
+
+\bibliography{LabraKokkolaB}
+
+
+\appendix
+
+\chapter{Ensimmäinen liite}
+\label{liite1}
+\pagenumbering{gobble}
+
+\end{document}

@@ -1,0 +1,10 @@
+.venv/
+.vscode/
+
+#ignore mittausdata.csv as it may change
+#and preprocessed *_mittausdata.csv
+*mittausdata.csv
+
+#ignore instructions and output of tex
+*.pdf
+
