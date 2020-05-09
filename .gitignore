@@ -5,6 +5,7 @@ __pycache__/
 #ignore mittausdata.csv as it may change
 #and preprocessed *_mittausdata.csv
 *mittausdata.csv
+*.csv
 
 #ignore instructions and output of tex
 *.pdf

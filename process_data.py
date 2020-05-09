@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 
-from plot_data import plot_node_loc
+from plot_functions import plot_node_loc
 from estimation_methods import lateration, minmaxbox
 
 # constants
@@ -114,10 +114,21 @@ for n, g in hourly_df.groupby(['timestamp']):
 position_df = pd.DataFrame(locations_estimates)
 position_df.timestamp = pd.to_datetime(position_df.timestamp) # need to convert to datetime after creation
 
+# calculate error for each method
+# d(P, Q) = sqrt((x2 − x1)**2 + (y2 − y1)**2)
+def error_distance(a:Location, b:Location) -> float:
+    x1, y1 = a
+    x2, y2 = b
+    return np.sqrt((x2 - x1)**2 + (y2 - y1)**2)
+v_error_distance = np.vectorize(error_distance)
+
+position_df['lateration_error'] = position_df['lateration'].apply(error_distance, args=(locations[sensorid_to_locate],))
+position_df['minmaxbox_error'] = position_df['minmaxbox'].apply(error_distance, args=(locations[sensorid_to_locate],))
+
 print(position_df.info())
 print(position_df.head())
 
-# position_df.to_csv(f'paikannus_estimaatit_sersorille_{sensorid_to_locate}.csv', index=False)
+position_df.to_csv(f'paikannus_estimaatit_sensorille_{sensorid_to_locate}.csv', index=False)
 
 def run():
     pass
