@@ -116,6 +116,8 @@ position_df.timestamp = pd.to_datetime(position_df.timestamp) # need to convert 
 
 print(position_df.info())
 print(position_df.head())
-# print(position_df.iloc[0].lateration)
+
+# position_df.to_csv(f'paikannus_estimaatit_sersorille_{sensorid_to_locate}.csv', index=False)
+
 def run():
     pass
