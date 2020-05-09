@@ -1,5 +1,6 @@
 .venv/
 .vscode/
+__pycache__/
 
 #ignore mittausdata.csv as it may change
 #and preprocessed *_mittausdata.csv
