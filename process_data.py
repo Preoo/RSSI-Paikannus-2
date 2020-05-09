@@ -4,8 +4,11 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 
+from plot_data import plot_node_loc
+from estimation_methods import lateration, minmaxbox
+
 # constants
-P0:int = -28
+P0:float = -28.0
 n_p:int = 2
 d0:int = 1
 X_std:float = 0.1
@@ -42,7 +45,6 @@ location_df = pd.DataFrame({
     'y_m' : Y
 })
 
-from plot_data import plot_node_loc
 plot_node_loc(location_df)
 
 # read csv and drop rows where sensorid is not our chosen node
@@ -88,7 +90,32 @@ v_estimated_dist = np.vectorize(estimated_dist)
 hourly_df['d_hat'] = v_estimated_dist(hourly_df.rssi1, X)
 
 print(hourly_df.head())
+print(hourly_df.describe())
 
+print('=====groups=====')
+hourly_df = hourly_df.reset_index()
+hourly_df = hourly_df.set_index(['timestamp', 'neighbor'])
+hourly_df = hourly_df.drop(['level_0'], axis=1)
 
+# calculate location estimates for timestamps
+locations_estimates:list = []
+for n, g in hourly_df.groupby(['timestamp']):
+    # print(g)
+    # neighbors 4 and 5 have bad distances
+    neighbors = [d for _, d in g.index.values]
+    neighbor_dist_est = dict(zip(neighbors, g.d_hat))
+    locations_estimates.append({
+        'timestamp' : str(n),
+        'lateration' : Location(*lateration(locations, sensorid_to_locate, neighbor_dist_est, skip_refs=[4,5])),
+        'minmaxbox' : Location(*minmaxbox(locations, sensorid_to_locate, neighbor_dist_est, skip_refs=[4,5]))
+    })
+
+# columns lateration and minmaxbox contains tuple of estimated Location from said method for sensorid_to_locate
+position_df = pd.DataFrame(locations_estimates)
+position_df.timestamp = pd.to_datetime(position_df.timestamp) # need to convert to datetime after creation
+
+print(position_df.info())
+print(position_df.head())
+# print(position_df.iloc[0].lateration)
 def run():
     pass
