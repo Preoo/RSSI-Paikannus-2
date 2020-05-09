@@ -31,21 +31,26 @@ def lateration(references, node_to_locate, est_dists, skip_refs=[]):
 def minmaxbox(references, node_to_locate, est_dists, skip_refs=[]):
     """ return center of bounding box as location (x, y) """
     anchors = {key:value for key, value in references.items() if key != node_to_locate and key not in skip_refs}
-    
+    # Source: Problem Investigation of Min-max Method for RSSI Based Indoor Localization
     # dataset isn't too large so naive implementation should be fine
-    x_min = []
-    x_max = []
-    y_min = []
-    y_max = []
-    # for all anchors in using_refs
+    x_min:float = -np.Inf
+    x_max:float = np.Inf
+    y_min:float = -np.Inf
+    y_max:float = np.Inf
+
     for neighbor, loc in anchors.items():
     #   calculate bounding box
-        x_min.append(loc.x - est_dists[neighbor])
-        x_max.append(loc.x + est_dists[neighbor])
-        y_min.append(loc.y - est_dists[neighbor])
-        y_max.append(loc.y + est_dists[neighbor])
+        if (loc.x - est_dists[neighbor]) > x_min:
+            x_min = loc.x - est_dists[neighbor]
+        if (loc.x + est_dists[neighbor]) < x_max:
+            x_max = loc.x + est_dists[neighbor]
 
-    x = (max(x_min) + min(x_max)) / 2
-    y = (max(y_min) + min(y_max)) / 2
+        if (loc.y - est_dists[neighbor]) > y_min:
+            y_min = loc.y - est_dists[neighbor]
+        if (loc.y + est_dists[neighbor]) < y_max:
+            y_max = loc.y + est_dists[neighbor]
+
+    x = (x_min + x_max) / 2
+    y = (y_min + y_max) / 2
 
     return x, y
