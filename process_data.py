@@ -51,15 +51,11 @@ plot_node_loc(location_df)
 main_df = pd.read_csv('prosessoitu_mittausdata.csv', parse_dates=['timestamp'])
 main_df = main_df[main_df.sensorid == sensorid_to_locate]
 main_df = main_df.drop(['sensorid'], axis=1)
-# print(main_df.info())
-# print(main_df.head())
 
 # groupby neighbor and take hourly mean of rssi1
 hourly_df = main_df.groupby(['neighbor'], as_index=False).resample('1H', on='timestamp').mean()
 
 print(hourly_df.info())
-# print(hourly_df.head())
-# print(hourly_df.tail())
 print('=====missing======')
 print(hourly_df[hourly_df.isna().any(axis=1)])
 print('-----------------')
@@ -100,7 +96,6 @@ hourly_df = hourly_df.drop(['level_0'], axis=1)
 # calculate location estimates for timestamps
 locations_estimates:list = []
 for n, g in hourly_df.groupby(['timestamp']):
-    # print(g)
     # neighbors 4 and 5 have bad distances
     neighbors = [d for _, d in g.index.values]
     neighbor_dist_est = dict(zip(neighbors, g.d_hat))
@@ -120,7 +115,6 @@ def error_distance(a:Location, b:Location) -> float:
     x1, y1 = a
     x2, y2 = b
     return np.sqrt((x2 - x1)**2 + (y2 - y1)**2)
-v_error_distance = np.vectorize(error_distance)
 
 position_df['lateration_error'] = position_df['lateration'].apply(error_distance, args=(locations[sensorid_to_locate],))
 position_df['minmaxbox_error'] = position_df['minmaxbox'].apply(error_distance, args=(locations[sensorid_to_locate],))
