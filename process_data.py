@@ -7,44 +7,9 @@ import pandas as pd
 from plot_functions import plot_node_loc
 from estimation_methods import lateration, minmaxbox
 
-# constants
-P0:float = -28.0
-n_p:int = 2
-d0:int = 1
-X_std:float = 0.1
+from constants import P0, n_p, d0, X_std, sensorid_to_locate, skip_ref_ids, Location, locations, build_locations_df
 
-sensorid_to_locate = 6
-
-# reference lcoations for nodes
-#   sensorid : (x, y)
-Location = namedtuple('Location', ['x', 'y'])
-locations = {
-    1: Location(41.99, 9.35),   #reference
-    2: Location(0.09, -21.14),  #reference
-    4: Location(-34.12, 16.95), #reference
-    5: Location(3.7, 21.4),     #reference
-    6: Location(2.47, -5.62),   #possible/reference
-    7: Location(-17.51, -19.68),#reference
-    8: Location(-15.91, 5.63),  #possible/reference
-    9: Location(19.3, -6.89),   #reference
-}
-
-# just do the dumb thing and be done with it
-nodes = []
-X = []
-Y = []
-
-for node, loc in locations.items():
-    nodes.append(node)
-    X.append(loc.x)
-    Y.append(loc.y)
-
-location_df = pd.DataFrame({
-    'node' : nodes,
-    'x_m' : X,
-    'y_m' : Y
-})
-
+location_df = build_locations_df()
 plot_node_loc(location_df)
 
 # read csv and drop rows where sensorid is not our chosen node
@@ -96,13 +61,14 @@ hourly_df = hourly_df.drop(['level_0'], axis=1)
 # calculate location estimates for timestamps
 locations_estimates:list = []
 for n, g in hourly_df.groupby(['timestamp']):
-    # neighbors 4 and 5 have bad distances
+    # save estimated locations as np.arrays to ease working with saved data in next step
+    # locations are defined as coord-paris [x, y]
     neighbors = [d for _, d in g.index.values]
     neighbor_dist_est = dict(zip(neighbors, g.d_hat))
     locations_estimates.append({
         'timestamp' : str(n),
-        'lateration' : Location(*lateration(locations, sensorid_to_locate, neighbor_dist_est, skip_refs=[4,5])),
-        'minmaxbox' : Location(*minmaxbox(locations, sensorid_to_locate, neighbor_dist_est, skip_refs=[4,5]))
+        'lateration' : np.array((lateration(locations, sensorid_to_locate, neighbor_dist_est, skip_refs=skip_ref_ids)), dtype=np.float),
+        'minmaxbox' : np.array((minmaxbox(locations, sensorid_to_locate, neighbor_dist_est, skip_refs=skip_ref_ids)), dtype=np.float)
     })
 
 # columns lateration and minmaxbox contains tuple of estimated Location from said method for sensorid_to_locate
@@ -119,10 +85,26 @@ def error_distance(a:Location, b:Location) -> float:
 position_df['lateration_error'] = position_df['lateration'].apply(error_distance, args=(locations[sensorid_to_locate],))
 position_df['minmaxbox_error'] = position_df['minmaxbox'].apply(error_distance, args=(locations[sensorid_to_locate],))
 
+# just brute force this...
+# we need X, Y in separate columns for plotting
+lat_X = np.empty(len(position_df.lateration))
+lat_Y = np.empty(len(position_df.lateration))
+for i, v in enumerate(position_df.lateration):
+    lat_X[i] = v[0]
+    lat_Y[i] = v[1]
+position_df['lateration_x'] = lat_X
+position_df['lateration_y'] = lat_Y
+
+box_X = np.empty(len(position_df.minmaxbox))
+box_Y = np.empty(len(position_df.minmaxbox))
+for i, v in enumerate(position_df.minmaxbox):
+    box_X[i] = v[0]
+    box_Y[i] = v[1]
+position_df['minmaxbox_x'] = box_X
+position_df['minmaxbox_y'] = box_Y
+
 print(position_df.info())
 print(position_df.head())
 
-position_df.to_csv(f'paikannus_estimaatit_sensorille_{sensorid_to_locate}.csv', index=False)
-
-def run():
-    pass
+# position_df.to_csv(f'paikannus_estimaatit_sensorille_{sensorid_to_locate}.csv', index=False)
+position_df.to_pickle(f'paikannus_estimaatit_sensorille_{sensorid_to_locate}.plk')

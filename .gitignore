@@ -2,10 +2,11 @@
 .vscode/
 __pycache__/
 
-#ignore mittausdata.csv as it may change
-#and preprocessed *_mittausdata.csv
-*mittausdata.csv
+#ignore .csv as they arent needed in source control
 *.csv
+
+# ignore python pickle files too
+*.plk
 
 #ignore instructions and output of tex
 *.pdf
