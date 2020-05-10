@@ -4,13 +4,9 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 
-from plot_functions import plot_node_loc
+# from plot_functions import plot_node_loc
 from estimation_methods import lateration, minmaxbox
-
 from constants import P0, n_p, d0, X_std, sensorid_to_locate, skip_ref_ids, Location, locations, build_locations_df
-
-location_df = build_locations_df()
-plot_node_loc(location_df)
 
 # read csv and drop rows where sensorid is not our chosen node
 main_df = pd.read_csv('prosessoitu_mittausdata.csv', parse_dates=['timestamp'])
