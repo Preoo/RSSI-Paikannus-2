@@ -3,25 +3,25 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 
-from constants import P0, n_p, d0, X_std, sensorid_to_locate, skip_ref_ids, Location, locations, build_locations_df
-
+from constants import sensorid_to_locate, skip_ref_ids, locations, build_locations_df
 from plot_functions import ecdf
 
 sns.set_style('white')
-
 
 try:
     df = pd.read_pickle(f'paikannus_estimaatit_sensorille_{sensorid_to_locate}.plk')
     anchors_df = build_locations_df()
     # all node locations
     list_of_references = [r for r in locations.keys() if r not in [sensorid_to_locate, *skip_ref_ids]]
-    fig, (ax_lat, ax_box) = plt.subplots(2, 1, sharex=True, sharey=True, gridspec_kw={'hspace': 0, 'wspace': 0})
+    fig, (ax_lat, ax_box) = plt.subplots(2, 1, sharex=True, sharey=True, gridspec_kw={'hspace': 0, 'wspace': 0}, subplot_kw={'xlim':[-50, 50], 'ylim':[-50, 50]})
     # mark common nodes in both axes
     for ax in (ax_lat, ax_box):
         ax.plot(anchors_df[anchors_df['node'].isin(skip_ref_ids)].x_m, anchors_df[anchors_df['node'].isin(skip_ref_ids)].y_m, '.', label='ei käytetty')
         ax.plot(anchors_df[anchors_df['node'].isin(list_of_references)].x_m, anchors_df[anchors_df['node'].isin(list_of_references)].y_m, 'd', label='referenssi')
         ax.plot(anchors_df[anchors_df['node'] == sensorid_to_locate].x_m, anchors_df[anchors_df['node'] == sensorid_to_locate].y_m, '*', label='arvioitava')
         ax.label_outer()
+        # ax.set_xlim([-50,50])
+        # ax.set_ylim([-50,50])
 
     ax_lat.plot(df.lateration_x, df.lateration_y, 'xc', label='arvioitu sijainti (lateraatio)', alpha=.3)
     ax_box.plot(df.minmaxbox_x, df.minmaxbox_y, '+c', label='arvioitu sijainti (minmax)', alpha=.3)

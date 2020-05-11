@@ -12,6 +12,9 @@ main_df = pd.read_csv('prosessoitu_mittausdata.csv', parse_dates=['timestamp'])
 main_df = main_df[main_df.sensorid == sensorid_to_locate]
 main_df = main_df.drop(['sensorid'], axis=1)
 
+# use predefined value or take mean of stds for each neighbor
+mu = X_std or np.mean(main_df.groupby(['neighbor']).rssi1.std())
+
 # groupby neighbor and take hourly mean of rssi1
 hourly_df = main_df.groupby(['neighbor'], as_index=False).resample('1H', on='timestamp').mean()
 
@@ -24,11 +27,10 @@ print('-----------------')
 hourly_df = hourly_df.fillna(method='bfill')
 print(hourly_df.info())
 
-# get sampling of 0 means gaussians dist with some std
-X = np.random.normal(0, X_std, len(hourly_df))
+# get sampling of 0 means gaussians distrib with some std.dev mu
+X = np.random.normal(0, mu, len(hourly_df))
 
-
-def estimated_dist(rssi:float, X:float) -> float:
+def estimated_dist(rssi:float, X_rss:float) -> float:
     # rssi = P0 - 10*n*log_10(d) + X_q
     # rssi - P0 - X_q = -10*n*log_10(d)
     # (rssi - P0 - X_q)/(-10*n) = log_10(d)
@@ -38,7 +40,7 @@ def estimated_dist(rssi:float, X:float) -> float:
     # X_q is gaussian with 0 mean and std of q
     # X = np.random.normal(0, q, len(samples))
     # input X is gaussian sampled for this element-wise call
-    return 10**((rssi - P0 - X)/(-10*n_p))
+    return 10**((rssi - P0 - X_rss)/(-10*n_p))
 
 # apply estimate function to generate new column in dataframe for d_hat
 v_estimated_dist = np.vectorize(estimated_dist)
@@ -80,7 +82,7 @@ def error_distance(a:Location, b:Location) -> float:
 position_df['lateration_error'] = position_df['lateration'].apply(error_distance, args=(locations[sensorid_to_locate],))
 position_df['minmaxbox_error'] = position_df['minmaxbox'].apply(error_distance, args=(locations[sensorid_to_locate],))
 
-# just brute force this...
+# just do the dumb and simple thing...
 # we need X, Y in separate columns for plotting
 lat_X = np.empty(len(position_df.lateration))
 lat_Y = np.empty(len(position_df.lateration))
@@ -101,5 +103,4 @@ position_df['minmaxbox_y'] = box_Y
 print(position_df.info())
 print(position_df.head())
 
-# position_df.to_csv(f'paikannus_estimaatit_sensorille_{sensorid_to_locate}.csv', index=False)
 position_df.to_pickle(f'paikannus_estimaatit_sensorille_{sensorid_to_locate}.plk')

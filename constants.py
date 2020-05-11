@@ -6,7 +6,7 @@ Location = namedtuple('Location', ['x', 'y'])
 P0:float = -28.0
 n_p:int = 2
 d0:int = 1
-X_std:float = 0.1
+X_std:float = None # specify a constant or None to calculate it from rssi-measurements
 
 sensorid_to_locate = 6
 skip_ref_ids = [4,5]

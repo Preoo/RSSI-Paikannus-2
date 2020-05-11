@@ -1,6 +1,5 @@
 import pandas as pd
 
-
 #parse_dates will parse columns values into datetime objects.
 df = pd.read_csv('mittausdata.csv', sep=';', parse_dates=['timestamp'])
 
