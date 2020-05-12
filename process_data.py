@@ -31,16 +31,15 @@ print(hourly_df.info())
 X = np.random.normal(0, mu, len(hourly_df))
 
 def estimated_dist(rssi:float, X_rss:float) -> float:
-    # rssi = P0 - 10*n*log_10(d) + X_q
-    # rssi - P0 - X_q = -10*n*log_10(d)
-    # (rssi - P0 - X_q)/(-10*n) = log_10(d)
-    # 10^[(rssi - P0 - X_q)/(-10*n)] = d_hat
-    # 10^((rssi - P0 - X_q)/-20) = d_hat
+    # rssi = P0 - 10*n*log_10(d/d0) + X_q
+    # rssi - P0 - X_q = -10*n*log_10(d/d0)
+    # (rssi - P0 - X_q)/(-10*n) = log_10(d/d0)
+    # 10^[(rssi - P0 - X_q)/(-10*n)] / d0 = d_hat
 
     # X_q is gaussian with 0 mean and std of q
     # X = np.random.normal(0, q, len(samples))
     # input X is gaussian sampled for this element-wise call
-    return 10**((rssi - P0 - X_rss)/(-10*n_p))
+    return 10**((rssi - P0 - X_rss)/(-10*n_p)) / d0
 
 # apply estimate function to generate new column in dataframe for d_hat
 v_estimated_dist = np.vectorize(estimated_dist)
@@ -50,7 +49,7 @@ hourly_df['d_hat'] = v_estimated_dist(hourly_df.rssi1, X)
 print(hourly_df.head())
 print(hourly_df.describe())
 
-print('=====groups=====')
+# reindex in preparation to calc loc estimates from each neighbors estimated distances
 hourly_df = hourly_df.reset_index()
 hourly_df = hourly_df.set_index(['timestamp', 'neighbor'])
 hourly_df = hourly_df.drop(['level_0'], axis=1)
