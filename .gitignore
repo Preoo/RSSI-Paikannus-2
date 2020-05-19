@@ -2,12 +2,18 @@
 .vscode/
 __pycache__/
 
-#ignore .csv as they arent needed in source control
+raportti/
+
+# ignore .csv as they arent needed in source control
 *.csv
 
 # ignore python pickle files too
 *.plk
 
-#ignore instructions and output of tex
+# ignore instructions, tex files and intermediates
 *.pdf
-
+# *.bst
+# *.bib
+# *.cls
+# *.syntex.gz
+# *.tex

@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 
 def ecdf(dist):
     """ dist is numpy 1D-array containing distance errors """

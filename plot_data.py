@@ -43,8 +43,6 @@ try:
     ax.plot(df.timestamp, df.lateration_error, '-', label='Lateration')
     ax.plot(df.timestamp, df.minmaxbox_error, '-.', label='MinMax (Bounding Box)')
     fig.autofmt_xdate()
-    # sns.lineplot(x='timestamp', y='lateration_error', data=df, label='Lateration')
-    # sns.lineplot(x='timestamp', y='minmaxbox_error', data=df, label='MinMax (Bounding Box)')
     plt.xlabel('Aika')
     plt.ylabel('Paikannusvirhe (m)')
     plt.legend()
@@ -56,7 +54,7 @@ try:
     ax.plot(values1, percentiles1, '-', label='Lateration')
     values2, percentiles2 = ecdf(df.minmaxbox_error)
     ax.plot(values2, percentiles2, '-.', label='MinMax (Bounding Box)')
-    # persentiilit
+    # persentiles
     ax.hlines(y=0.5, xmin=0, xmax=max(values1.max(), values2.max()), color='r', linestyle=':', alpha=.3, label=f'50% persentiili')
     ax.hlines(y=0.9, xmin=0, xmax=max(values1.max(), values2.max()), color='g', linestyle=':', alpha=.3, label=f'90% persentiili')
     plt.title('ECDF')
@@ -75,3 +73,5 @@ else:
     minmaxbox_error_table = df.minmaxbox_error.describe(percentiles=[.5, .9])
     print(lateration_error_table)
     print(minmaxbox_error_table)
+    lateration_error_table.to_csv('./raportti/figures/lateration_error_stats.csv')
+    minmaxbox_error_table.to_csv('./raportti/figures/minmaxbox_error_stats.csv')
