@@ -1,5 +1,6 @@
 import pandas as pd
 from collections import namedtuple
+from typing import List
 Location = namedtuple('Location', ['x', 'y'])
 
 # constants
@@ -8,8 +9,8 @@ n_p:int = 2
 d0:float = 1.0      # reference distance in meters
 X_std:float = None  # specify a constant or None to calculate it from rssi-measurements
 
-sensorid_to_locate = 6
-skip_ref_ids = [4,5]
+sensorid_to_locate:int = 6
+skip_ref_ids:List[int] = [4,5]
 
 locations = {
     1: Location(41.99, 9.35),   #reference
@@ -24,9 +25,9 @@ locations = {
 
 def build_locations_df():
     # just do the dumb thing and be done with it
-    nodes = []
-    X = []
-    Y = []
+    nodes:List[int] = []
+    X:List[float] = []
+    Y:List[float] = []
 
     for node, loc in locations.items():
         nodes.append(node)
