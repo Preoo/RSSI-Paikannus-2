@@ -4,7 +4,8 @@ def lateration(references, node_to_locate, est_dists, skip_refs=[]):
     """ return location (x, y) using lateration with all references """
     # filter out measuremnts from refrences specified in skip_refs list.
     # Useful if fading or other causes are contributing to weird estimates.
-    anchors = {key:value for key, value in references.items() if key != node_to_locate and key not in skip_refs}
+    anchors = {key:value for key, value in references.items()
+        if key != node_to_locate and key not in skip_refs}
 
     x = np.array([loc.x for loc in anchors.values()])
     y = np.array([loc.y for loc in anchors.values()])
@@ -21,7 +22,10 @@ def lateration(references, node_to_locate, est_dists, skip_refs=[]):
     #     |d_{0}^2   - d_{n-1}^2 -x_{0}^2   + x_{n-1}^2 - y_{0}^2   + y_{n-1}^2|
     # B = |d_{1}^2   - d_{n-1}^2 -x_{1}^2   + x_{n-1}^2 - y_{1}^2   + y_{n-1}^2|
     #     |d_{n-2}^2 - d_{n-1}^2 -x_{n-2}^2 + x_{n-1}^2 - y_{n-2}^2 + y_{n-1}^2|
-    B = np.array( [d[i]**2 - d[-1]**2 - x[i]**2 + x[-1]**2 -y[i]**2 + y[-1]**2 for i in range(len(d)-1 )] )
+    B = np.array([
+        d[i]**2 - d[-1]**2 - x[i]**2 + x[-1]**2 -y[i]**2 + y[-1]**2
+        for i in range(len(d)-1 )
+        ])
 
     # Computes x of Ax = B. Equivalent with (A.T * A)^{-1} * A.T * B.
     # Source: Distributed localization in wireless sensor networks:a quantitative comparison
@@ -30,7 +34,10 @@ def lateration(references, node_to_locate, est_dists, skip_refs=[]):
 
 def minmaxbox(references, node_to_locate, est_dists, skip_refs=[]):
     """ return center of bounding box as location (x, y) """
-    anchors = {key:value for key, value in references.items() if key != node_to_locate and key not in skip_refs}
+    anchors = {
+        key:value for key, value in references.items()
+        if key != node_to_locate and key not in skip_refs
+        }
     # Source: Problem Investigation of Min-max Method for RSSI Based Indoor Localization
     # dataset isn't too large so naive implementation should be fine
     x_min:float = -np.Inf
