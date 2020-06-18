@@ -5,7 +5,8 @@ import pandas as pd
 
 # from plot_functions import plot_node_loc
 from estimation_methods import lateration, minmaxbox
-from constants import P0, n_p, d0, X_std, sensorid_to_locate, skip_ref_ids, Location, locations, build_locations_df
+from constants import P0, n_p, d0, X_std, sensorid_to_locate,\
+    skip_ref_ids, Location, locations, build_locations_df
 
 # read csv and drop rows where sensorid is not our chosen node
 main_df = pd.read_csv('prosessoitu_mittausdata.csv', parse_dates=['timestamp'])
@@ -16,7 +17,8 @@ main_df = main_df.drop(['sensorid'], axis=1)
 mu = X_std or np.mean(main_df.groupby(['neighbor']).rssi1.std())
 
 # groupby neighbor and take hourly mean of rssi1
-hourly_df = main_df.groupby(['neighbor'], as_index=False).resample('1H', on='timestamp').mean()
+hourly_df = main_df.groupby(['neighbor'], as_index=False)\
+    .resample('1H', on='timestamp').mean()
 
 print(hourly_df.info())
 print('=====missing======')
@@ -30,7 +32,9 @@ print(hourly_df.info())
 # get sampling of 0 means gaussians distrib with some std.dev mu
 X = np.random.normal(0, mu, len(hourly_df))
 
-def estimated_dist(rssi:float, X_rss:float) -> float:
+def estimated_dist(
+    rssi:float, X_rss:float, P0:float=P0, n_p:int=n_p, d0:float=d0
+    ) -> float:
     # rssi = P0 - 10*n*log_10(d/d0) + X_q
     # rssi - P0 - X_q = -10*n*log_10(d/d0)
     # (rssi - P0 - X_q)/(-10*n) = log_10(d/d0)
@@ -44,7 +48,7 @@ def estimated_dist(rssi:float, X_rss:float) -> float:
 # apply estimate function to generate new column in dataframe for d_hat
 v_estimated_dist = np.vectorize(estimated_dist)
 
-hourly_df['d_hat'] = v_estimated_dist(hourly_df.rssi1, X)
+hourly_df['d_hat'] = v_estimated_dist(hourly_df.rssi1, X, P0, n_p, d0)
 
 print(hourly_df.head())
 print(hourly_df.describe())
@@ -63,13 +67,17 @@ for n, g in hourly_df.groupby(['timestamp']):
     neighbor_dist_est = dict(zip(neighbors, g.d_hat))
     locations_estimates.append({
         'timestamp' : str(n),
-        'lateration' : np.array((lateration(locations, sensorid_to_locate, neighbor_dist_est, skip_refs=skip_ref_ids)), dtype=np.float),
-        'minmaxbox' : np.array((minmaxbox(locations, sensorid_to_locate, neighbor_dist_est, skip_refs=skip_ref_ids)), dtype=np.float)
+        'lateration' : np.array((lateration(locations, sensorid_to_locate,\
+            neighbor_dist_est, skip_refs=skip_ref_ids)), dtype=np.float),
+        'minmaxbox' : np.array((minmaxbox(locations, sensorid_to_locate,\
+            neighbor_dist_est, skip_refs=skip_ref_ids)), dtype=np.float)
     })
 
-# columns lateration and minmaxbox contains tuple of estimated Location from said method for sensorid_to_locate
+# columns lateration and minmaxbox contains tuple of estimated Location from
+# said method for sensorid_to_locate
 position_df = pd.DataFrame(locations_estimates)
-position_df.timestamp = pd.to_datetime(position_df.timestamp) # need to convert to datetime after creation
+# need to convert to datetime after creation
+position_df.timestamp = pd.to_datetime(position_df.timestamp)
 
 # calculate error for each method
 # d(P, Q) = sqrt((x2 − x1)**2 + (y2 − y1)**2)
@@ -78,8 +86,10 @@ def error_distance(a:Location, b:Location) -> float:
     x2, y2 = b
     return np.sqrt((x2 - x1)**2 + (y2 - y1)**2)
 
-position_df['lateration_error'] = position_df['lateration'].apply(error_distance, args=(locations[sensorid_to_locate],))
-position_df['minmaxbox_error'] = position_df['minmaxbox'].apply(error_distance, args=(locations[sensorid_to_locate],))
+position_df['lateration_error'] = position_df['lateration']\
+    .apply(error_distance, args=(locations[sensorid_to_locate],))
+position_df['minmaxbox_error'] = position_df['minmaxbox']\
+    .apply(error_distance, args=(locations[sensorid_to_locate],))
 
 # just do the dumb and simple thing...
 # we need X, Y in separate columns for plotting

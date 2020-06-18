@@ -27,7 +27,8 @@ df = df[df.neighbor != 3]
 
 print(df.info())
 
-assert sorted(df['sensorid'].unique()) == sorted(df['neighbor'].unique()), f'Error: set of sensorids and set of neighbors are not equal. This is fatal.'
+assert sorted(df['sensorid'].unique()) == sorted(df['neighbor'].unique()),\
+    f'Error: set of sensorids and set of neighbors are not equal. This is fatal.'
 
 # save cleaned data to new file
 df.to_csv('prosessoitu_mittausdata.csv', index=False)

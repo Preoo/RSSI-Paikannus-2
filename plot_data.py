@@ -16,21 +16,36 @@ try:
     xy_limits = ceil(round(max(loc_coords_abs))/10.0)*10
 
     # all node locations
-    list_of_references = [r for r in locations.keys() if r not in [sensorid_to_locate, *skip_ref_ids]]
-    fig, (ax_lat, ax_box) = plt.subplots(2, 1, sharex=True, sharey=True, gridspec_kw={'hspace': 0, 'wspace': 0}, subplot_kw={'xlim':[-xy_limits, xy_limits], 'ylim':[-xy_limits, xy_limits], 'aspect':'equal'})
+    list_of_references = [r for r in locations.keys()
+        if r not in [sensorid_to_locate, *skip_ref_ids]]
+    fig, (ax_lat, ax_box) = plt.subplots(2, 1, sharex=True, sharey=True,\
+        gridspec_kw={'hspace': 0, 'wspace': 0},\
+        subplot_kw={
+            'xlim':[-xy_limits, xy_limits],
+            'ylim':[-xy_limits, xy_limits],
+            'aspect':'equal'
+        })
 
     # mark common nodes in both axes
     for ax in (ax_lat, ax_box):
-        ax.plot(anchors_df[anchors_df['node'].isin(skip_ref_ids)].x_m, anchors_df[anchors_df['node'].isin(skip_ref_ids)].y_m, '.', label='ei käytetty')
-        ax.plot(anchors_df[anchors_df['node'].isin(list_of_references)].x_m, anchors_df[anchors_df['node'].isin(list_of_references)].y_m, 'd', label='referenssi')
-        ax.plot(anchors_df[anchors_df['node'] == sensorid_to_locate].x_m, anchors_df[anchors_df['node'] == sensorid_to_locate].y_m, '*', label='arvioitava')
+        ax.plot(anchors_df[anchors_df['node']\
+            .isin(skip_ref_ids)].x_m, anchors_df[anchors_df['node']\
+            .isin(skip_ref_ids)].y_m, '.', label='ei käytetty')
+        ax.plot(anchors_df[anchors_df['node']\
+            .isin(list_of_references)].x_m, anchors_df[anchors_df['node']\
+            .isin(list_of_references)].y_m, 'd', label='referenssi')
+        ax.plot(anchors_df[anchors_df['node'] == sensorid_to_locate].x_m,\
+            anchors_df[anchors_df['node'] == sensorid_to_locate].y_m, '*',\
+            label='arvioitava')
         ax.label_outer()
 
-    ax_lat.plot(df.lateration_x, df.lateration_y, 'xk', label='arvioitu sijainti (lateraatio)', alpha=.3)
-    ax_box.plot(df.minmaxbox_x, df.minmaxbox_y, '+k', label='arvioitu sijainti (minmax)', alpha=.3)
+    ax_lat.plot(df.lateration_x, df.lateration_y, 'xk',\
+        label='arvioitu sijainti (lateraatio)', alpha=.3)
+    ax_box.plot(df.minmaxbox_x, df.minmaxbox_y, '+k',\
+        label='arvioitu sijainti (minmax)', alpha=.3)
 
     lines_labels = [ax.get_legend_handles_labels() for ax in fig.axes]
-    handles, labels = [sum(lol, []) for lol in zip(*lines_labels)] # thanks stackoverflow
+    handles, labels = [sum(lol, []) for lol in zip(*lines_labels)]
     # remove dumplicate legend entries. This is project dependent manipulation.
     handles, labels = handles[3:], labels[3:]
     handles.insert(-1, handles.pop(0))
@@ -55,8 +70,10 @@ try:
     values2, percentiles2 = ecdf(df.minmaxbox_error)
     ax.plot(values2, percentiles2, '-.', label='MinMax (Bounding Box)')
     # persentiles
-    ax.hlines(y=0.5, xmin=0, xmax=max(values1.max(), values2.max()), color='r', linestyle=':', alpha=.3, label=f'50% persentiili')
-    ax.hlines(y=0.9, xmin=0, xmax=max(values1.max(), values2.max()), color='g', linestyle=':', alpha=.3, label=f'90% persentiili')
+    ax.hlines(y=0.5, xmin=0, xmax=max(values1.max(), values2.max()),\
+        color='r', linestyle=':', alpha=.3, label=f'50% persentiili')
+    ax.hlines(y=0.9, xmin=0, xmax=max(values1.max(), values2.max()),\
+        color='g', linestyle=':', alpha=.3, label=f'90% persentiili')
     plt.title('ECDF')
     plt.xlabel('Paikannusvirhe (m)')
     plt.ylabel('Persentiilit')
@@ -64,7 +81,7 @@ try:
     plt.show()
 
 except IOError:
-    print(f'Failed to load .csv file. It might be missing, check that file paikannus_estimaatit_sensorille')
+    print(f'Failed to load paikannus_estimaatit_sensorille.csv file.')
 
 else:
     print(df.info())
